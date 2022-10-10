@@ -13,13 +13,19 @@ class store {
     }
 
     loadData() {
-        this.products = data.products
-        this.categories = data.categories
+        data.categories.forEach((categoryData) => {
+            let cat = new category(categoryData.id, categoryData.name, categoryData.description)
+            this.categories.push(cat)
+        })
+        data.products.forEach((prodData) => {
+            let prod = new product(prodData.id, prodData.name, prodData.category, prodData.price, prodData.units)
+            this.products.push(prod)
+        })
     }
 
     getCategoryById(id) {
 
-        let cat =  this.categories.find(category => category.id === id);
+        let cat =  this.categories.find(category => category.id == id);
         if(!cat) {
             throw 'No existe una categoria con id: ' + id 
         }
@@ -39,7 +45,7 @@ class store {
 
     getProductById(id) {
 
-        let prod = this.products.find(product => product.id === id) 
+        let prod = this.products.find(product => product.id == id) 
 
         if(prod == null) {
             throw 'No existe un producto con id: ' + id
@@ -49,7 +55,7 @@ class store {
 
     getProductsByCategory(id) {
 
-        return this.products.filter(product => product.category === id)
+        return this.products.filter(product => product.category == id)
     }   
 
     addCategory(nombre, descripcion = 'No hay descripción') {
@@ -68,10 +74,16 @@ class store {
         }
 
         let newId = 0
+
         if(this.categories.length > 0) {
-            let bigCategory = this.categories.reduce((max, category) => category.id > max ? category.id : max)
-            newId = bigCategory.id
+
+            let bigCategory = this.categories.reduce((max, category) => max.id > category.id ? max : category)
+
+            if(bigCategory) {
+                newId = bigCategory.id
+            }
         }
+    
         newId += 1
 
         let newCategory = new category(newId, nombre, descripcion)
@@ -98,17 +110,23 @@ class store {
                 throw 'Las unidades no son correctas, debe ser mayor de 0'
             } else if(isNaN(payload.units)) {
                 throw 'Las unidades no son correctas, debe ser un numero'
-            } else if (!Number.isInteger(payload.units)) {
+            } else if (payload.units % 1 != 0) {
                 throw 'Las unidades no son correctas, debe ser un numero entero'
             }
             
         }
 
         let newId = 0
+
         if(this.products.length > 0) {
-            let bigProduct = this.products.reduce((max, product) => product.id > max ? product.id : max)
-            newId = bigProduct.id;
+
+            let bigProduct = this.products.reduce((max, product) => max.id > product.id ? max : product)
+
+            if(bigProduct) {
+                newId = bigProduct.id;
+            }
         }
+
         newId += 1
 
         let newProduct = new product(newId, payload.name, payload.category, payload.price, payload.units)
@@ -145,7 +163,7 @@ class store {
     }
 
     totalImport() {
-        return total = this.products.reduce((total,product)  => total += product.productImport())
+        return total = this.products.reduce((total,product)  => total += product.productImport(), 0)
     }
 
     orderByUnitsDesc() {
