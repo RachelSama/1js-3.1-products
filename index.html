@@ -6,14 +6,155 @@
 	<meta name="description" content="Ejercicio de Javascript">
 	<meta name="author" content="Juan Segura">
 	<meta name="keywords" content="JavaScript, Ejercicio, HTML5, DAW">
+	<!-- CSS only -->
+	<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-iYQeCzEYFbKjA/T2uDLTpkwGzCiq6soy8tYaI1GyVh/UjpbCx/TYkiZhlZB6+fzT" crossorigin="anonymous">
+	<link href="style.css" rel="stylesheet">
+
 </head>
 <body>
-	<header>
-	    <h1>Ejercicio 3.1 - POO</h1>
-	</header>
-	<p>Abre la consola para ver el resultado.</p>
+	<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+		<div class="container-fluid">
+		  <span class="navbar-brand" href="#">Almacén ACME</span>
+		  <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+			<div class="navbar-nav">
+			  <a class="nav-link active" id="link-prod" aria-current="page" href="#">Productos</a>
+			  <a class="nav-link" id="link-cat" href="#">Categorías</a>
+			  <a class="nav-link" id="link-addprod" href="#">Añadir producto</a>
+			  <a class="nav-link" id="link-addcat" href="#">Añadir categoría</a>
+			  <a class="nav-link" id="link-about" href="#">Sobre nosotros</a>
+			</div>
+		  </div>
+		</div>
+	  </nav>
+
+	  <div class="container">
+        <header>
+            <h1>Listado de productos</h1>
+        </header>
+
+        <!-- Zona para mostrar mensajes al usuario -->
+        <div class="row" id="messages">
+			  <!-- <div class="alert alert-danger alert-dismissible" role="alert">
+				<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" onclick="this.parentElement.remove()"></button>
+			  </div> -->
+		</div>
+
+        <!-- Almacén de productos -->
+        <div class="row" id="lista-productos">
+            <div class="col-sm-12 col-md-12 col-lg-12" id="almacen-productos">
+                <table class="table table-striped table-hover table-responsive">
+                    <thead class="bg-dark">
+                        <tr class="text-white text-center">
+                            <th>Id</th>
+                            <th>Nombre</th>
+                            <th>Categoría</th>
+                            <th>Uds.</th>
+                            <th>Precio/u</th>
+                            <th>Importe</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+						
+                        <!-- Aquí insertaremos los productos-->
+                    </tbody>
+                    <tfoot>
+                        <th colspan="5">Importe total del almacén:</th>
+                        <th id="total"></th>
+                        <th></th>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+
+		<div class="row hiddenPart" id="lista-categorias">
+            <div class="col-sm-12 col-md-12 col-lg-12" id="almacen-categorias">
+                <table class="table table-striped table-hover table-responsive">
+                    <thead class="bg-dark">
+                        <tr class="text-white text-center">
+                            <th>Id</th>
+                            <th>Nombre</th>
+                            <th>Descripcion</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+						
+                        <!-- Aquí insertaremos los productos-->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+
+		        <!-- Acciones sobre el almacén -->
+				<div class="row">
+					<div class="col-sm-6 col-md-4 col-lg-4 hiddenPart" id="add-producto">
+						<form id="new-prod">
+							<fieldset>
+								<legend class="bg-dark text-white text-center">Añadir producto</legend>
+								<!-- Aquí los inputs y botones del form -->
+								<div class="form-group">
+									<label for="newprod-id">ID:</label>
+									<input type="text" id="newprod-id" class="form-control" disabled>
+								</div>
+								<div class="form-group">
+									<label for="newprod-name">Nombre:</label>
+									<input type="text" id="newprod-name" class="form-control">
+								</div>
+								<div class="form-group">
+									<label for="newprod-cat">Categoría:</label>
+									<select class="form-control" id="newprod-cat">
+										<option value="" >--- Selecciona categoría ---</option>
+									</select>
+								</div>
+
+								<div class="form-group">
+									<label for="newprod-units">Unidades.:</label>
+									<input type="number" id="newprod-units" class="form-control">
+								</div>
+								<div class="form-group">
+									<label for="newprod-price">Precio/u.:</label>
+									<input type="number" id="newprod-price" class="form-control" step=".01">
+								</div>
+								<br>
+								<button type="submit" id="submit-prod" class="btn btn-default btn-dark">Añadir</button>
+								<button type="reset" class="btn btn-danger">Reset</button>
+							</fieldset>
+						</form>
+					</div>
+					<div class="col-sm-6 col-md-4 col-lg-4 hiddenPart"  id="add-categoria">
+						<form id="new-cat">
+							<fieldset>
+								<legend class="bg-dark text-white text-center">Añadir categoría</legend>
+								<!-- Aquí los inputs y botones del form -->
+								<div class="form-group">
+									<label for="newcat-id">ID:</label>
+									<input type="text" id="newcat-id" class="form-control" disabled>
+								</div>
+								<div class="form-group">
+									<label for="newcat-name">Nombre:</label>
+									<input type="text" id="newcat-name" class="form-control">
+								</div>
+								<div class="form-group">
+									<label for="newcat-description">Descripción:</label>
+									<input type="text" id="newcat-description" class="form-control">
+								</div>
+								<br>
+								<button type="submit" id="submit-cat" class="btn btn-default btn-dark">Añadir</button>
+								<button type="reset" class="btn btn-danger">Reset</button>
+							</fieldset>
+						</form>
+					</div>
+				</div>
+
+				<div id="about-us" class="hiddenPart">
+					<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+				</div>
+		
+		
 	<footer><small>Diseño Web en Entorno Cliente - Juan Segura</small></footer>
     <script src="./dist/main.js"></script>
 </body>
 </html>
-

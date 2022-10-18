@@ -1,59 +1,98 @@
 'use strict'
 
-// Creamos un nuevo almacén con id 1
-// Antes hemos haber importado la clase Store para poder usarla
-const Store = require('./store.class');
-const myStore = new Store(1, 'Almacén de ACME')
+// Aquí importaremos la clase del controlador e instanciaremos uno
+const Controller = require('./controller/controller.class')
 
-myStore.loadData()
+const myController = new Controller()
+myController.init()
 
-// Añadimos los objetos
-try {
-    var catInformatica = myStore.addCategory('Informática')
-} catch(err) {
-    console.error(err)
-}
+// A continuación crearemos una función manejadora para cada formulario
+window.addEventListener('load', () => {
 
-try {
-    var tv = myStore.addProduct({ 
-        name: 'TV Samsung MP45', 
-        category: catInformatica.id, 
-        price: 345.95, 
-        units: 3
-    })
-    var abaco = myStore.addProduct({ 
-        name: 'Ábaco de madera', 
-        category: catInformatica.id, 
-        price: 245.95, 
-        units: 45
-    })
-    var impr = myStore.addProduct({ 
-        name: 'impresora Epson LX-455', 
-        category: catInformatica.id, 
-        price: 45.95
-    })
-    var usb = myStore.addProduct({ 
-        name: 'USB Kingston 16GB', 
-        category: catInformatica.id, 
-        price: 5.95
-    })
-} catch(err) {
-    console.error(err)
-}
+  document.getElementById('link-prod').addEventListener('click', () => {
+    myController.showListProduct()
+  })
 
-// Eliminamos el producto
-try {
-    myStore.delProduct(usb.id)
-} catch(err) {
-    console.error(err)
-}
+  document.getElementById('link-cat').addEventListener('click', () => {
+    myController.showListCategories()
+  })
 
-// Mostramos por consola todo lo que nos piden
-console.log('LISTADO DEL ALMACÉN por existencias')
-myStore.orderByUnitsDesc().forEach(prod=>console.log('- '+prod))
+  document.getElementById('link-addprod').addEventListener('click', () => {
+    myController.showAddProduct()
+  })
 
-console.log('LISTADO DEL ALMACÉN por nombre')
-myStore.orderByName().forEach(prod=>console.log('- '+prod))
+  document.getElementById('link-addcat').addEventListener('click', () => {
+    myController.showAddCategory()
+  })
 
-console.log('LISTADO DE PRODUCTOS CON POCAS EXISTENCIAS')
-myStore.underStock(10).forEach(prod=>console.log('- '+prod))
+  document.getElementById('link-about').addEventListener('click', () => {
+    myController.showAboutUs()
+  })
+
+  // función manejadora del formulario 'new-prod'
+  document.getElementById('new-prod').addEventListener('submit', (event) => {
+    event.preventDefault()
+
+
+    // Aquí el código para obtener los datos del formulario
+    const name = document.getElementById('newprod-name').value
+    const price = document.getElementById('newprod-price').value 
+    const category = document.getElementById('newprod-cat').value
+    const units = document.getElementById('newprod-units').value
+    // ...
+    const id = document.getElementById('newprod-id').value
+
+    if(id) {
+      myController.editProductFromStore({id, name, price, category, units})
+      document.getElementById("add-producto").classList.add("hiddenPart")
+      document.getElementById("lista-productos").classList.remove("hiddenPart")
+      document.getElementById('submit-prod').innerHTML = 'Añadir'
+      
+    } else {
+    // Aquí llamamos a la función del controlador que añade productos (addProductToStore)
+    // pasándole como parámetro esos datos
+      myController.addProductToStore({ name, price, category, units})   
+    }
+    // Sintaxis de ES2015 que equivale a 
+    //
+    // myController.addProductToStore(
+    //   { 
+    //     name: name,
+    //     price: price 
+    //   }
+    // ) 
+  })
+
+  document.getElementById('new-cat').addEventListener('submit', (event) => {
+    event.preventDefault()
+
+    // Aquí el código para obtener los datos del formulario
+    const name = document.getElementById('newcat-name').value 
+    const description = document.getElementById('newcat-description').value
+
+    const id = document.getElementById('newcat-id').value
+
+    if(id) {
+      myController.editCategoryFromStore({id, name, description})
+      document.getElementById("add-categoria").classList.add("hiddenPart")
+      document.getElementById("lista-categorias").classList.remove("hiddenPart")
+      document.getElementById('submit-cat').innerHTML = 'Añadir'
+      
+    } else {
+    // Aquí llamamos a la función del controlador que añade productos (addProductToStore)
+    // pasándole como parámetro esos datos
+    myController.addCategoryToStore({ name, description})    
+    }
+    
+    // Aquí llamamos a la función del controlador que añade productos (addProductToStore)
+    // pasándole como parámetro esos datos
+      
+  })
+
+  // document.getElementById('del-cat').addEventListener('submit', (event) => {
+  //   event.preventDefault()
+
+  //   myController.deleteCategoryFromStore(document.getElementById('delcat-id').value)      
+  // })
+
+})
