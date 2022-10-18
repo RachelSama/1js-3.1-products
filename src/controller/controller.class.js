@@ -1,3 +1,4 @@
+const category = require('../model/category.class')
 const Store = require('../model/store.class')
 const View = require('../view/view.class')
 
@@ -18,7 +19,7 @@ class Controller {
     addProductToStore(payload) {
         try {
             const newProd = this.myStore.addProduct(payload)
-            this.myView.renderProducts(newProd)
+            this.myView.renderProducts(newProd, this.deleteProductFromStore.bind(this))
             this.myView.renderTotalImport(this.myStore)
         } catch(error) {
             this.myView.showMessage(error, 'Error al añadir el producto')
@@ -52,16 +53,71 @@ class Controller {
         }
     }
 
-    putPredeterminatedProducts() {
-        for (const product of this.myStore.products) {
-            this.myView.renderProducts(product)
+    editProductFromStore(payload) {
+        try {
+            const prod = this.myStore.editProduct(payload)
+            this.myView.renderEditProduct(prod)
+            this.myView.renderTotalImport(this.myStore)
+        } catch(error) {
+            this.myView.showMessage(error, 'Error al editar el producto')
         }
     }
 
-    putPredeterminatedCategories() {
-        for (const category of this.myStore.categories) {
-            this.myView.renderCategories(category)
+    editCategoryFromStore(payload) {
+        try {
+            const cat = this.myStore.editCategory(payload)
+            this.myView.renderEditCategory(cat)
+        } catch(error) {
+            this.myView.showMessage(error, 'Error al editar la categoria')
         }
+    }
+
+    sumUnits(id) {
+        try {
+            const prod = this.myStore.sumUnitsToProduct(id)
+            this.myView.renderEditProduct(prod)
+            this.myView.renderTotalImport(this.myStore)
+        } catch(error) {
+            this.myView.showMessage(error, 'Error al sumar unidades al producto')
+        }
+    }
+
+    restUnits(id) {
+        try {
+            const prod = this.myStore.restUnitsToProduct(id)
+            this.myView.renderEditProduct(prod)
+            this.myView.renderTotalImport(this.myStore)
+        } catch(error) {
+            this.myView.showMessage(error, 'Error al restar unidades al producto')
+        }
+    }
+
+    showListProduct() {
+        this.myView.renderListProduct()
+    }
+
+    showListCategories() {
+        this.myView.renderListCategory()
+    }
+
+    showAddProduct() {
+        this.myView.renderAddProduct()
+    }
+
+    showAddCategory() {
+        this.myView.renderAddCategory()
+    }
+
+    showAboutUs() {
+        this.myView.renderAboutUs()
+    }
+
+    putPredeterminatedProducts() {
+        this.myStore.products.forEach((product) => this.myView.renderProducts(product, this))
+    }
+
+    putPredeterminatedCategories() {
+        this.myStore.categories.forEach((category) => this.myView.renderCategories(category, this))
     }
 }
 

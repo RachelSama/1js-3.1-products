@@ -8,6 +8,8 @@ class product {
         this.units = units
     }
 
+    
+
     productImport() {
         return this.price * this.units
     }

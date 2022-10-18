@@ -135,12 +135,85 @@ class store {
         return newProduct
     }
 
+    sumUnitsToProduct(id) {
+        let prod = this.getProductById(id);
+        prod.units = prod.units + 1
+        return prod
+    }
+
+    restUnitsToProduct(id) {
+        let prod = this.getProductById(id);
+        
+        if(prod.units == 0) {
+            throw 'No se puede restar unidades si no hay unidades'
+        }
+
+        prod.units = prod.units - 1
+        return prod
+    }
+
+    editProduct(payload) {
+        if(!payload.name.trim()) {
+            throw 'Debe tener un nombre definido'
+        }
+
+        if(!payload.category || !this.getCategoryById(payload.category)) {
+                throw 'No existe la categoria o no la has introducido'
+        }
+
+        if(!payload.price || payload.price < 0 || isNaN(payload.price)) {
+            throw 'El precio no es correcto'
+        }
+
+        if(payload.units) {
+            if(payload.units < 0) {
+                throw 'Las unidades no son correctas, debe ser mayor de 0'
+            } else if(isNaN(payload.units)) {
+                throw 'Las unidades no son correctas, debe ser un numero'
+            } else if (payload.units % 1 != 0) {
+                throw 'Las unidades no son correctas, debe ser un numero entero'
+            }
+        }
+
+        let prod = this.getProductById(payload.id);
+
+        prod.name = payload.name
+        prod.category = payload.category
+        prod.price = payload.price
+        prod.units = payload.units
+
+        return prod;
+
+    }
+
+    editCategory(payload) {
+        if(!payload.name.trim()) {
+            throw 'Debe tener un nombre definido'
+        }
+
+        let catSearched = null
+        try {
+            catSearched = this.getCategoryByName(payload.name)
+        } catch(error) {}
+
+        if(catSearched != null) {
+            throw 'Error! ' + payload.name + ' ya es un nombre de una categoria'
+        }
+
+        let cat = this.getCategoryById(payload.id)
+
+        cat.name = payload.name
+        cat.description = payload.description
+
+        return cat
+    }
+
     delCategory(id) {
         let existCategory = this.getCategoryById(id)
         let haveProducts = this.getProductsByCategory(id)
 
         if(!existCategory || haveProducts.length !== 0) {
-            throw 'No se puede eliminar la categoria porque no existe o tiene productos'
+            throw 'No se puede eliminar la categoria porque tiene productos'
         }
         this.categories = this.categories.filter(category => category.id !== id)
 
