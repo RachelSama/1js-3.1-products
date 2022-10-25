@@ -8,21 +8,58 @@ class Controller {
         this.myView = new View()
     }
 
+    setListeners() {
+        const inputName = document.getElementById('newprod-name')
+        inputName.addEventListener('blur', () => {
+            if(this.myStore.productNameExist(inputName.value, inputName.id)) {
+                inputName.setCustomValidity('El producto ya existe')
+            } else {
+                inputName.setCustomValidity('')
+            }
+            inputName.nextElementSibling.textContent = inputName.validationMessage
+        })
+
+        const inputCat = document.getElementById('newprod-cat')
+        inputCat.addEventListener('blur', () => {
+            inputCat.nextElementSibling.textContent = inputCat.validationMessage
+        })
+
+        const inputUnits = document.getElementById('newprod-units')
+        inputUnits.addEventListener('blur', () => {
+            inputUnits.nextElementSibling.textContent = inputUnits.validationMessage
+        })
+
+        const inputPrice = document.getElementById('newprod-price')
+        inputPrice.addEventListener('blur', () => {
+            inputPrice.nextElementSibling.textContent = inputPrice.validationMessage
+        })
+
+        document.addEventListener('submit', () => {
+            inputName.nextElementSibling.textContent = inputName.validationMessage
+            inputCat.nextElementSibling.textContent = inputCat.validationMessage
+            inputUnits.nextElementSibling.textContent = inputUnits.validationMessage
+            inputPrice.nextElementSibling.textContent = inputPrice.validationMessage
+          });
+    }
+
     init() {
         this.myStore.loadData()
         this.myView.init()
         this.putPredeterminatedCategories()
         this.putPredeterminatedProducts()
         this.myView.renderTotalImport(this.myStore)
+        this.setListeners()
     }
 
     addProductToStore(payload) {
-        try {
-            const newProd = this.myStore.addProduct(payload)
-            this.myView.renderProducts(newProd, this.deleteProductFromStore.bind(this))
-            this.myView.renderTotalImport(this.myStore)
-        } catch(error) {
-            this.myView.showMessage(error, 'Error al añadir el producto')
+        if(document.getElementById('new-prod').checkValidity()) {
+            try {
+                const newProd = this.myStore.addProduct(payload)
+                this.myView.renderProducts(newProd, this.deleteProductFromStore.bind(this))
+                this.myView.renderTotalImport(this.myStore)
+            } catch (error) {
+                this.myView.showMessage(error, 'Error al añadir el producto')
+            }
         }
     }
 
@@ -30,7 +67,7 @@ class Controller {
         try {
             const newCategory = this.myStore.addCategory(payload.name, payload.description)
             this.myView.renderCategories(newCategory)
-        } catch(error) {
+        } catch (error) {
             this.myView.showMessage(error, 'Error al añadir la categoria')
         }
     }
@@ -39,7 +76,7 @@ class Controller {
         try {
             const prodDeleted = this.myStore.delProduct(id)
             this.myView.renderDelProduct(prodDeleted)
-        } catch(error) {
+        } catch (error) {
             this.myView.showMessage(error, 'Error al eliminar el producto')
         }
     }
@@ -48,7 +85,7 @@ class Controller {
         try {
             const catDeleted = this.myStore.delCategory(id)
             this.myView.renderDelCategory(catDeleted)
-        } catch(error) {
+        } catch (error) {
             this.myView.showMessage(error, 'Error al eliminar la categoria')
         }
     }
@@ -58,7 +95,7 @@ class Controller {
             const prod = this.myStore.editProduct(payload)
             this.myView.renderEditProduct(prod)
             this.myView.renderTotalImport(this.myStore)
-        } catch(error) {
+        } catch (error) {
             this.myView.showMessage(error, 'Error al editar el producto')
         }
     }
@@ -67,7 +104,7 @@ class Controller {
         try {
             const cat = this.myStore.editCategory(payload)
             this.myView.renderEditCategory(cat)
-        } catch(error) {
+        } catch (error) {
             this.myView.showMessage(error, 'Error al editar la categoria')
         }
     }
@@ -77,7 +114,7 @@ class Controller {
             const prod = this.myStore.sumUnitsToProduct(id)
             this.myView.renderEditProduct(prod)
             this.myView.renderTotalImport(this.myStore)
-        } catch(error) {
+        } catch (error) {
             this.myView.showMessage(error, 'Error al sumar unidades al producto')
         }
     }
@@ -87,7 +124,7 @@ class Controller {
             const prod = this.myStore.restUnitsToProduct(id)
             this.myView.renderEditProduct(prod)
             this.myView.renderTotalImport(this.myStore)
-        } catch(error) {
+        } catch (error) {
             this.myView.showMessage(error, 'Error al restar unidades al producto')
         }
     }

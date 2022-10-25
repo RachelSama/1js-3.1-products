@@ -1,9 +1,9 @@
 class View {
-    init() {}
+    init() { }
 
     renderProducts(prod, callback) {
         const productUI = document.createElement('tr')
-        productUI.id = "prod"+prod.id
+        productUI.id = "prod" + prod.id
         productUI.innerHTML = `
             <td>${prod.id}</td> 
             <td class="name-prod">${prod.name}</td> 
@@ -67,7 +67,7 @@ class View {
 
     renderCatList(category, callback) {
         const categoryUI = document.createElement('tr')
-        categoryUI.id = "cat"+category.id
+        categoryUI.id = "cat" + category.id
         categoryUI.innerHTML = `
             <td>${category.id}</td> 
             <td class="name-cat">${category.name}</td> 
@@ -102,24 +102,24 @@ class View {
 
         const categoryUI = document.getElementById('newprod-cat')
         const newOption = document.createElement('option')
-        newOption.id = "cat"+category.id
+        newOption.id = "cat" + category.id
         newOption.value = category.id
         newOption.innerHTML = category.name
         categoryUI.appendChild(newOption)
     }
 
     renderDelProduct(prod) {
-        const productUI = document.getElementById("prod"+prod.id)
+        const productUI = document.getElementById("prod" + prod.id)
         productUI.remove();
     }
 
     renderDelCategory(cat) {
-        const categoryUI = document.getElementById("cat"+cat.id)
+        const categoryUI = document.getElementById("cat" + cat.id)
         categoryUI.remove()
     }
 
     renderEditProduct(prod) {
-        const productUI = document.getElementById("prod"+prod.id)
+        const productUI = document.getElementById("prod" + prod.id)
         productUI.querySelector('.name-prod').innerHTML = prod.name
         productUI.querySelector('.cat-prod').innerHTML = prod.category
         productUI.querySelector('.price-prod').innerHTML = prod.price + " €/u"
@@ -128,7 +128,7 @@ class View {
     }
 
     renderEditCategory(cat) {
-        const categorytUI = document.getElementById("cat"+cat.id)
+        const categorytUI = document.getElementById("cat" + cat.id)
         categorytUI.querySelector('.name-cat').innerHTML = cat.name
         categorytUI.querySelector('.description-cat').innerHTML = cat.description
     }
