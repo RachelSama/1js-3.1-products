@@ -23,20 +23,35 @@ class store {
         })
     }
 
+    productNameExist(name, id) {
+        let prod = this.products.find(product => product.name === name);
+        if(id) {
+            if (prod.id != id) {
+                return true
+            }
+        } else {
+            if (!prod) {
+                return false
+            }
+            return true
+        }
+        
+    }
+
     getCategoryById(id) {
 
-        let cat =  this.categories.find(category => category.id == id);
-        if(!cat) {
-            throw 'No existe una categoria con id: ' + id 
+        let cat = this.categories.find(category => category.id == id);
+        if (!cat) {
+            throw 'No existe una categoria con id: ' + id
         }
         return cat
     }
 
     getCategoryByName(name) {
 
-        let cat =  this.categories.find(category => category.name.toLowerCase() === name.toLowerCase());
-        
-        if(cat == null) {
+        let cat = this.categories.find(category => category.name.toLowerCase() === name.toLowerCase());
+
+        if (cat == null) {
             throw 'No existe una categoria con name: ' + name
         } else {
             return cat
@@ -45,45 +60,45 @@ class store {
 
     getProductById(id) {
 
-        let prod = this.products.find(product => product.id == id) 
+        let prod = this.products.find(product => product.id == id)
 
-        if(prod == null) {
+        if (prod == null) {
             throw 'No existe un producto con id: ' + id
         }
-        return prod       
+        return prod
     }
 
     getProductsByCategory(id) {
 
         return this.products.filter(product => product.category == id)
-    }   
+    }
 
     addCategory(nombre, descripcion = 'No hay descripción') {
 
-        if(!nombre.trim()) {
+        if (!nombre.trim()) {
             throw 'Debe tener un nombre definido'
         }
 
         let cat = null
         try {
             cat = this.getCategoryByName(nombre)
-        } catch(error) {}
+        } catch (error) { }
 
-        if(cat != null) {
+        if (cat != null) {
             throw 'Error! ' + nombre + ' ya es un nombre de una categoria'
         }
 
         let newId = 0
 
-        if(this.categories.length > 0) {
+        if (this.categories.length > 0) {
 
             let bigCategory = this.categories.reduce((max, category) => max.id > category.id ? max : category)
 
-            if(bigCategory) {
+            if (bigCategory) {
                 newId = bigCategory.id
             }
         }
-    
+
         newId += 1
 
         let newCategory = new category(newId, nombre, descripcion)
@@ -93,36 +108,36 @@ class store {
     }
 
     addProduct(payload) {
-        if(!payload.name.trim()) {
+        if (!payload.name.trim()) {
             throw 'Debe tener un nombre definido'
         }
 
-        if(!payload.category || !this.getCategoryById(payload.category)) {
-                throw 'No existe la categoria o no la has introducido'
+        if (!payload.category || !this.getCategoryById(payload.category)) {
+            throw 'No existe la categoria o no la has introducido'
         }
 
-        if(!payload.price || payload.price < 0 || isNaN(payload.price)) {
+        if (!payload.price || payload.price < 0 || isNaN(payload.price)) {
             throw 'El precio no es correcto'
         }
 
-        if(payload.units) {
-            if(payload.units < 0) {
+        if (payload.units) {
+            if (payload.units < 0) {
                 throw 'Las unidades no son correctas, debe ser mayor de 0'
-            } else if(isNaN(payload.units)) {
+            } else if (isNaN(payload.units)) {
                 throw 'Las unidades no son correctas, debe ser un numero'
             } else if (payload.units % 1 != 0) {
                 throw 'Las unidades no son correctas, debe ser un numero entero'
             }
-            
+
         }
 
         let newId = 0
 
-        if(this.products.length > 0) {
+        if (this.products.length > 0) {
 
             let bigProduct = this.products.reduce((max, product) => max.id > product.id ? max : product)
 
-            if(bigProduct) {
+            if (bigProduct) {
                 newId = bigProduct.id;
             }
         }
@@ -143,8 +158,8 @@ class store {
 
     restUnitsToProduct(id) {
         let prod = this.getProductById(id);
-        
-        if(prod.units == 0) {
+
+        if (prod.units == 0) {
             throw 'No se puede restar unidades si no hay unidades'
         }
 
@@ -153,22 +168,22 @@ class store {
     }
 
     editProduct(payload) {
-        if(!payload.name.trim()) {
+        if (!payload.name.trim()) {
             throw 'Debe tener un nombre definido'
         }
 
-        if(!payload.category || !this.getCategoryById(payload.category)) {
-                throw 'No existe la categoria o no la has introducido'
+        if (!payload.category || !this.getCategoryById(payload.category)) {
+            throw 'No existe la categoria o no la has introducido'
         }
 
-        if(!payload.price || payload.price < 0 || isNaN(payload.price)) {
+        if (!payload.price || payload.price < 0 || isNaN(payload.price)) {
             throw 'El precio no es correcto'
         }
 
-        if(payload.units) {
-            if(payload.units < 0) {
+        if (payload.units) {
+            if (payload.units < 0) {
                 throw 'Las unidades no son correctas, debe ser mayor de 0'
-            } else if(isNaN(payload.units)) {
+            } else if (isNaN(payload.units)) {
                 throw 'Las unidades no son correctas, debe ser un numero'
             } else if (payload.units % 1 != 0) {
                 throw 'Las unidades no son correctas, debe ser un numero entero'
@@ -187,16 +202,16 @@ class store {
     }
 
     editCategory(payload) {
-        if(!payload.name.trim()) {
+        if (!payload.name.trim()) {
             throw 'Debe tener un nombre definido'
         }
 
         let catSearched = null
         try {
             catSearched = this.getCategoryByName(payload.name)
-        } catch(error) {}
+        } catch (error) { }
 
-        if(catSearched != null) {
+        if (catSearched != null) {
             throw 'Error! ' + payload.name + ' ya es un nombre de una categoria'
         }
 
@@ -212,7 +227,7 @@ class store {
         let existCategory = this.getCategoryById(id)
         let haveProducts = this.getProductsByCategory(id)
 
-        if(!existCategory || haveProducts.length !== 0) {
+        if (!existCategory || haveProducts.length !== 0) {
             throw 'No se puede eliminar la categoria porque tiene productos'
         }
         this.categories = this.categories.filter(category => category.id !== id)
@@ -223,11 +238,11 @@ class store {
 
     delProduct(id) {
         let existProduct = this.getProductById(id)
-        if(!existProduct) {
+        if (!existProduct) {
             throw 'No se puede eliminar el producto porque no existe'
         }
 
-        if(existProduct.units > 0) {
+        if (existProduct.units > 0) {
             throw 'No se puede eliminar el producto porque tiene unidades disponibles'
         }
 
@@ -236,15 +251,15 @@ class store {
     }
 
     totalImport() {
-        return total = this.products.reduce((total,product)  => total += product.productImport(), 0)
+        return total = this.products.reduce((total, product) => total += product.productImport(), 0)
     }
 
     orderByUnitsDesc() {
-        return this.products.sort((a,b) => a.units < b.units ? 1 : -1);
+        return this.products.sort((a, b) => a.units < b.units ? 1 : -1);
     }
 
     orderByName() {
-        return this.products.sort((a,b) => a.name.localeCompare(b.name));
+        return this.products.sort((a, b) => a.name.localeCompare(b.name));
     }
 
     underStock(units) {
