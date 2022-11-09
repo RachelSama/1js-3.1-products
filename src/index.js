@@ -84,6 +84,8 @@ window.addEventListener('load', () => {
       // Aquí llamamos a la función del controlador que añade productos (addProductToStore)
       // pasándole como parámetro esos datos
       myController.addCategoryToStore({ name, description })
+      document.getElementById("add-categoria").classList.add("hiddenPart")
+      document.getElementById("lista-categorias").classList.remove("hiddenPart")
     }
 
     // Aquí llamamos a la función del controlador que añade productos (addProductToStore)

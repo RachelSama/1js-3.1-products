@@ -1,6 +1,7 @@
 const category = require('./category.class');
 const product = require('./product.class');
-const data = require('./datosIni.json');
+const SERVER = 'http://localhost:3000'
+
 
 class store {
 
@@ -12,30 +13,53 @@ class store {
         this.categories = []
     }
 
-    loadData() {
-        data.categories.forEach((categoryData) => {
-            let cat = new category(categoryData.id, categoryData.name, categoryData.description)
-            this.categories.push(cat)
-        })
-        data.products.forEach((prodData) => {
-            let prod = new product(prodData.id, prodData.name, prodData.category, prodData.price, prodData.units)
-            this.products.push(prod)
-        })
+    async getInfo(searched) {
+        const response = await fetch(SERVER + '/' + searched)
+        const posts = await response.json()
+        return posts
+    }
+
+    async loadData() {
+
+        try {
+            var categoriasData = await this.getInfo('categories')
+            categoriasData.forEach((categoria) => {
+                const newCat = new category(categoria.id, categoria.name, categoria.description)
+                this.categories.push(newCat)
+            })
+
+        } catch (err) {
+            console.error(err)
+            return;
+        }
+
+        try {
+            var productosData = await this.getInfo('products')
+            productosData.forEach((producto) => {
+                const newProd = new product(producto.id, producto.name, producto.category, producto.price, producto.units)
+                this.products.push(newProd)
+            })
+
+        } catch (err) {
+            console.error(err)
+            return;
+        }
     }
 
     productNameExist(name, id) {
         let prod = this.products.find(product => product.name === name);
-        if(id) {
-            if (prod.id != id) {
-                return true
-            }
-        } else {
-            if (!prod) {
-                return false
+        if (prod) {
+            if (id) {
+                if (prod.id != id) {
+                    return true
+                } else {
+                    return false
+                }
             }
             return true
+        } else {
+            return false
         }
-        
     }
 
     getCategoryById(id) {
@@ -73,38 +97,49 @@ class store {
         return this.products.filter(product => product.category == id)
     }
 
-    addCategory(nombre, descripcion = 'No hay descripción') {
+    addCategory(payload) {
 
-        if (!nombre.trim()) {
+        if (!payload.name.trim()) {
             throw 'Debe tener un nombre definido'
         }
 
         let cat = null
         try {
-            cat = this.getCategoryByName(nombre)
+            cat = this.getCategoryByName(payload.name)
         } catch (error) { }
 
         if (cat != null) {
-            throw 'Error! ' + nombre + ' ya es un nombre de una categoria'
+            throw 'Error! ' + payload.name + ' ya es un nombre de una categoria'
         }
 
-        let newId = 0
-
-        if (this.categories.length > 0) {
-
-            let bigCategory = this.categories.reduce((max, category) => max.id > category.id ? max : category)
-
-            if (bigCategory) {
-                newId = bigCategory.id
-            }
+        let data = {
+            name: payload.name,
+            description: payload.description,
         }
 
-        newId += 1
+        return new Promise((resolve, reject) => {
+            fetch(SERVER + '/categories', {
+                method: 'POST',
+                body: JSON.stringify(data),
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw `Error ${response.status} de la BBDD: ${response.statusText}`
+                    }
+                    return response.json()
+                })
+                .then(dataCat => {
 
-        let newCategory = new category(newId, nombre, descripcion)
-        this.categories.push(newCategory)
+                    let newCategory = new category(dataCat.id, dataCat.name, dataCat.description)
+                    this.categories.push(newCategory)
 
-        return newCategory
+                    resolve(newCategory)
+                })
+                .catch(err => reject('Error en la petición HTTP: ' + err.message))
+        })
     }
 
     addProduct(payload) {
@@ -131,40 +166,120 @@ class store {
 
         }
 
-        let newId = 0
-
-        if (this.products.length > 0) {
-
-            let bigProduct = this.products.reduce((max, product) => max.id > product.id ? max : product)
-
-            if (bigProduct) {
-                newId = bigProduct.id;
-            }
+        let data = {
+            name: payload.name,
+            price: payload.price,
+            category: payload.category,
+            units: payload.units
         }
+        return new Promise((resolve, reject) => {
+            fetch(SERVER + '/products', {
+                method: 'POST',
+                body: JSON.stringify(data),
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw `Error ${response.status} de la BBDD: ${response.statusText}`
+                    }
 
-        newId += 1
+                    return response.json()
+                })
+                .then(dataProd => {
 
-        let newProduct = new product(newId, payload.name, payload.category, payload.price, payload.units)
-        this.products.push(newProduct)
+                    let newProduct = new product(dataProd.id, dataProd.name, dataProd.category, dataProd.price, dataProd.units)
+                    this.products.push(newProduct)
 
-        return newProduct
+                    resolve(newProduct)
+
+                })
+                .catch(err => reject('Error en la petición HTTP: ' + err.message))
+        })
     }
 
     sumUnitsToProduct(id) {
         let prod = this.getProductById(id);
-        prod.units = prod.units + 1
-        return prod
+        let unitsPlus = prod.units + 1
+
+        let data = {
+            name: prod.name,
+            price: prod.price,
+            category: prod.category,
+            units: unitsPlus
+        }
+
+        return new Promise((resolve, reject) => {
+            fetch(SERVER + '/products/' + prod.id, {
+                method: 'PUT',
+                body: JSON.stringify(data),
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw `Error ${response.status} de la BBDD: ${response.statusText}`
+                    }
+                    return response.json()
+                })
+                .then(dataProd => {
+
+                    let prod = this.getProductById(dataProd.id);
+
+                    prod.name = dataProd.name
+                    prod.category = dataProd.category
+                    prod.price = dataProd.price
+                    prod.units = dataProd.units
+
+                    resolve(prod)
+                })
+                .catch(err => reject('Error en la petición HTTP: ' + err.message))
+        })
     }
 
     restUnitsToProduct(id) {
         let prod = this.getProductById(id);
+        let unitsRest = prod.units - 1
 
         if (prod.units == 0) {
             throw 'No se puede restar unidades si no hay unidades'
         }
 
-        prod.units = prod.units - 1
-        return prod
+        let data = {
+            name: prod.name,
+            price: prod.price,
+            category: prod.category,
+            units: unitsRest
+        }
+        return new Promise((resolve, reject) => {
+            fetch(SERVER + '/products/' + prod.id, {
+                method: 'PUT',
+                body: JSON.stringify(data),
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw `Error ${response.status} de la BBDD: ${response.statusText}`
+                    }
+                    return response.json()
+                })
+                .then(dataProd => {
+
+                    let prod = this.getProductById(dataProd.id);
+
+                    prod.name = dataProd.name
+                    prod.category = dataProd.category
+                    prod.price = dataProd.price
+                    prod.units = dataProd.units
+
+                    resolve(prod)
+                })
+                .catch(err => reject('Error en la petición HTTP: ' + err.message))
+        })
     }
 
     editProduct(payload) {
@@ -190,15 +305,39 @@ class store {
             }
         }
 
-        let prod = this.getProductById(payload.id);
+        let data = {
+            name: payload.name,
+            price: payload.price,
+            category: payload.category,
+            units: payload.units
+        }
+        return new Promise((resolve, reject) => {
+            fetch(SERVER + '/products/' + payload.id, {
+                method: 'PUT',
+                body: JSON.stringify(data),
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw `Error ${response.status} de la BBDD: ${response.statusText}`
+                    }
+                    return response.json()
+                })
+                .then(dataProd => {
 
-        prod.name = payload.name
-        prod.category = payload.category
-        prod.price = payload.price
-        prod.units = payload.units
+                    let prod = this.getProductById(dataProd.id);
 
-        return prod;
+                    prod.name = dataProd.name
+                    prod.category = dataProd.category
+                    prod.price = dataProd.price
+                    prod.units = dataProd.units
 
+                    resolve(prod)
+                })
+                .catch(err => reject('Error en la petición HTTP: ' + err.message))
+        })
     }
 
     editCategory(payload) {
@@ -212,15 +351,40 @@ class store {
         } catch (error) { }
 
         if (catSearched != null) {
-            throw 'Error! ' + payload.name + ' ya es un nombre de una categoria'
+            if (catSearched.id != payload.id) {
+                throw 'Error! ' + payload.name + ' ya es un nombre de una categoria'
+            }
         }
 
-        let cat = this.getCategoryById(payload.id)
+        let data = {
+            name: payload.name,
+            description: payload.description
+        }
+        return new Promise((resolve, reject) => {
+            fetch(SERVER + '/categories/' + payload.id, {
+                method: 'PUT',
+                body: JSON.stringify(data),
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw `Error ${response.status} de la BBDD: ${response.statusText}`
+                    }
+                    return response.json()
+                })
+                .then(dataCat => {
 
-        cat.name = payload.name
-        cat.description = payload.description
+                    let cat = this.getCategoryById(dataCat.id)
 
-        return cat
+                    cat.name = dataCat.name
+                    cat.description = dataCat.description
+
+                    resolve(cat)
+                })
+                .catch(err => reject('Error en la petición HTTP: ' + err.message))
+        })
     }
 
     delCategory(id) {
@@ -230,10 +394,28 @@ class store {
         if (!existCategory || haveProducts.length !== 0) {
             throw 'No se puede eliminar la categoria porque tiene productos'
         }
-        this.categories = this.categories.filter(category => category.id !== id)
+        return new Promise((resolve, reject) => {
+            fetch(SERVER + '/categories/' + id, {
+                method: 'DELETE',
+                body: JSON.stringify(),
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw `Error ${response.status} de la BBDD: ${response.statusText}`
+                    }
+                    return response.json()
+                })
+                .then(dataCat => {
 
-        return existCategory;
+                    this.categories = this.categories.filter(category => category.id !== dataCat.id)
 
+                    resolve(existCategory)
+                })
+                .catch(err => reject('Error en la petición HTTP: ' + err.message))
+        })
     }
 
     delProduct(id) {
@@ -245,9 +427,26 @@ class store {
         if (existProduct.units > 0) {
             throw 'No se puede eliminar el producto porque tiene unidades disponibles'
         }
+        return new Promise((resolve, reject) => {
+            fetch(SERVER + '/products/' + id, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw `Error ${response.status} de la BBDD: ${response.statusText}`
+                    }
+                    return response.json()
+                })
+                .then(dataProd => {
 
-        this.products = this.products.filter(product => product.id !== id)
-        return existProduct;
+                    this.products = this.products.filter(product => product.id !== dataProd.id)
+                    resolve(existProduct)
+                })
+                .catch(err => reject('Error en la petición HTTP: ' + err.message))
+        })
     }
 
     totalImport() {

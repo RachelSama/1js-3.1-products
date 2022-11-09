@@ -3,6 +3,7 @@ class View {
 
     renderProducts(prod, callback) {
         const productUI = document.createElement('tr')
+        const importProd = prod.productImport() //.toFixed(2)
         productUI.id = "prod" + prod.id
         productUI.innerHTML = `
             <td>${prod.id}</td> 
@@ -10,7 +11,7 @@ class View {
             <td class="cat-prod">${prod.category}</td>
             <td class="units-prod">${prod.units}</td>
             <td class="price-prod">${prod.price} €/u</td>
-            <td class="import-prod">${prod.productImport().toFixed(2)} €</td>
+            <td class="import-prod">${importProd}
             <td>
             <button class="sum-unit-prod">
             <span class="material-icons">arrow_drop_up</span>
@@ -110,7 +111,7 @@ class View {
 
     renderDelProduct(prod) {
         const productUI = document.getElementById("prod" + prod.id)
-        productUI.remove();
+        productUI.remove()
     }
 
     renderDelCategory(cat) {
